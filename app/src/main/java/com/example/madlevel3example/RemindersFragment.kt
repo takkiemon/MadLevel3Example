@@ -1,10 +1,12 @@
 package com.example.madlevel3example
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,6 +37,7 @@ class RemindersFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        observeAddReminderResult()
         initViews()
     }
 
@@ -48,5 +51,16 @@ class RemindersFragment : Fragment() {
         binding.rvReminders.layoutManager =
             LinearLayoutManager(context, RecyclerView.VERTICAL, false)
         binding.rvReminders.adapter = reminderAdapter
+    }
+
+    private fun observeAddReminderResult() {
+        setFragmentResultListener(REQ_REMINDER_KEY) { _, bundle ->
+            bundle.getString(BUNDLE_REMINDER_KEY)?.let {
+                val reminder = Reminder(it)
+
+                reminders.add(reminder)
+                reminderAdapter.notifyDataSetChanged()
+            } ?: Log.e("ReminderFragment", "Request triggered, but empty reminder text!")
+        }
     }
 }
